@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import * as THREE from "three";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import React, { useState, Suspense } from "react";
+// import * as THREE from "three";
+import { TextureLoader } from "three/src/loaders/TextureLoader.js"
+import { Canvas, useFrame, useThree, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei"
 import "./App.css"
 import { softShadows } from "@react-three/drei";
@@ -15,6 +16,8 @@ function MyRotatingBox({ position, color, args }) {
   const [active, setActive] = useState(false);
   const set = useThree((state) => state.set)
   set({ shadowMap: true })
+  const texture_1 = useLoader(TextureLoader, abstract)
+
   useFrame(() => {
     myMesh.current.rotation.x = myMesh.current.rotation.y -= 0.01;
   });
@@ -23,48 +26,48 @@ function MyRotatingBox({ position, color, args }) {
     <mesh
       castShadow
       scale={active ? 1.5 : 1}
-      // onClick={() => setActive(!active)}
-      onPointerEnter={() => setActive(!active)}
-      onPointerLeave={() => setActive(!active)}
+      onClick={() => setActive(!active)}
+      // onPointerEnter={() => setActive(!active)}
+      // onPointerLeave={() => setActive(!active)}
       ref={myMesh}
       position={position}
     >
       <boxBufferGeometry args={args} />
-      <meshLambertMaterial color={color} />
+      <meshStandardMaterial map={texture_1} color={color} />
     </mesh>
   );
 }
 
 
-const TextMesh = () => {
-  const textMesh = React.useRef(null)
+// const TextMesh = () => {
+//   const textMesh = React.useRef(null)
 
-  // useFrame(() => {
-  //   // textMesh.current.rotation.x += 0.01;
-  //   // textMesh.current.rotation.y += 0.01;
-  //   // textMesh.current.rotation.z += 0.01;
-  //   // textMesh.current.geometry.center()
-  // })
-  // parse JSON file using FaceType.js with Three
-  const font = new THREE.FontLoader().parse(Jetbrains);
-  const red_texture = new THREE.TextureLoader().load(abstract);
-  red_texture.wrapS = THREE.RepeatWrapping
-  red_texture.wrapT = THREE.RepeatWrapping
-  red_texture.repeat.set(0.1, 0.1)
+//   useFrame(() => {
+//     textMesh.current.rotation.x += 0.01;
+//     textMesh.current.rotation.y += 0.01;
+//     textMesh.current.rotation.z += 0.01;
+//     textMesh.current.geometry.center()
+//   })
+//   // parse JSON file using FaceType.js with Three
+//   const font = new THREE.FontLoader().parse(Jetbrains);
+//   const red_texture = new THREE.TextureLoader().load(abstract);
+//   red_texture.wrapS = THREE.RepeatWrapping
+//   red_texture.wrapT = THREE.RepeatWrapping
+//   red_texture.repeat.set(0.1, 0.1)
 
-  // configure font geometry
-  const textOptions = {
-    font,
-    size: 2,
-    height: 0.3,
-  }
-  return (
-    <mesh position={[2, 0, 0]} ref={textMesh} >
-      <textGeometry color={"red"} args={["Manoj", textOptions]} />
-      <meshPhongMaterial args={{ map: red_texture }} />
-    </mesh>
-  )
-}
+//   // configure font geometry
+//   const textOptions = {
+//     font,
+//     size: 2,
+//     height: 0.3,
+//   }
+//   return (
+//     <mesh position={[2, 0, 0]} ref={textMesh} >
+//       <textGeometry color={"red"} args={["Manoj", textOptions]} />
+//       <meshPhongMaterial />
+//     </mesh>
+//   )
+// }
 
 
 
@@ -74,7 +77,7 @@ export default function App() {
     <div className="App" id="canvas-container">
       <Canvas
         shadows={true}
-        camera={{ position: [0, 0, 10], fov: 60 }}
+        camera={{ position: [-5, 0, 10], fov: 60 }}
         colorManagement
       >
         <ambientLight intensity={0.3} />
@@ -96,16 +99,16 @@ export default function App() {
           <mesh
             receiveShadow
             rotation={[-Math.PI / 2, 0, 0]}
-            position={[0, -3, 0]} >
+            position={[0, -3, 0]}
+          >
             <planeBufferGeometry args={[100, 100]} />
             <shadowMaterial opacity={0.3} />
           </mesh>
-          <MyRotatingBox args={[3, 2, 1]} color={"lightblue"} position={[0, 1, 0]} />
-          <MyRotatingBox color={"pink"} position={[-2, 1, -5]} />
-          <MyRotatingBox color={"pink"} position={[5, 1, -2]} />
+          <Suspense fallback={"loading..."}>
+            <MyRotatingBox args={[3, 2, 1]} color={"lightblue"} position={[0, 1, 0]} />
+          </Suspense>
         </group>
-        {/* <group></group> */}
-        <TextMesh />
+        {/* <TextMesh /> */}
         <OrbitControls />
       </Canvas>
     </div>
