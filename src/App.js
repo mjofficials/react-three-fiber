@@ -1,8 +1,12 @@
 import React, { useState } from "react";
+import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei"
 import "./App.css"
-import { MeshWobbleMaterial, softShadows } from "@react-three/drei";
+import { softShadows } from "@react-three/drei";
+import Jetbrains from "./jetBrains-mono.json"
+import abstract from "./assets/abstract.jpg"
+
 
 softShadows()
 
@@ -31,13 +35,46 @@ function MyRotatingBox({ position, color, args }) {
   );
 }
 
+
+const TextMesh = () => {
+  const textMesh = React.useRef(null)
+
+  // useFrame(() => {
+  //   // textMesh.current.rotation.x += 0.01;
+  //   // textMesh.current.rotation.y += 0.01;
+  //   // textMesh.current.rotation.z += 0.01;
+  //   // textMesh.current.geometry.center()
+  // })
+  // parse JSON file using FaceType.js with Three
+  const font = new THREE.FontLoader().parse(Jetbrains);
+  const red_texture = new THREE.TextureLoader().load(abstract);
+  red_texture.wrapS = THREE.RepeatWrapping
+  red_texture.wrapT = THREE.RepeatWrapping
+  red_texture.repeat.set(0.1, 0.1)
+
+  // configure font geometry
+  const textOptions = {
+    font,
+    size: 2,
+    height: 0.3,
+  }
+  return (
+    <mesh position={[2, 0, 0]} ref={textMesh} >
+      <textGeometry color={"red"} args={["Manoj", textOptions]} />
+      <meshPhongMaterial args={{ map: red_texture }} />
+    </mesh>
+  )
+}
+
+
+
 export default function App() {
 
   return (
-    <div className="App">
+    <div className="App" id="canvas-container">
       <Canvas
         shadows={true}
-        camera={{ position: [-5, 2, 10], fov: 60 }}
+        camera={{ position: [0, 0, 10], fov: 60 }}
         colorManagement
       >
         <ambientLight intensity={0.3} />
@@ -67,7 +104,8 @@ export default function App() {
           <MyRotatingBox color={"pink"} position={[-2, 1, -5]} />
           <MyRotatingBox color={"pink"} position={[5, 1, -2]} />
         </group>
-
+        {/* <group></group> */}
+        <TextMesh />
         <OrbitControls />
       </Canvas>
     </div>
